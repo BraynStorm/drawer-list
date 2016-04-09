@@ -1,0 +1,63 @@
+.drawer div {
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	cursor: default;
+}
+
+.drawer {
+	width: 300px;
+	height: 400px;
+	overflow: hidden;
+}
+
+.drawer-title {
+	width: 300px;
+	height: 20px;
+
+	text-align: center;
+
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+.drawer-elements-holder{
+	height: 380px;
+	float: left;
+	overflow: hidden;
+	border-bottom-left-radius: 5px;
+}
+
+.drawer-elements {
+	width: 295px;
+}
+
+.drawer-element {
+	padding-left: 6px;
+}
+
+.drawer-element:last-child {
+	border-bottom-left-radius: 5px;
+}
+
+.drawer-scrollbar {
+	width: 5px;
+	height: 380px;
+
+	float: left;
+
+	background: #eeeeee;
+	border-bottom-right-radius: 5px;
+}
+
+.drawer-scrollbar-meat {
+	width: 5px;
+	height: 20px;
+
+	background: #aaa;
+
+	position: relative;
+	top: 0;
+	left: 0;
+}
