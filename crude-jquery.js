@@ -45,6 +45,7 @@ class Animation {
 		this.passedTime = 0;
 		this.suffix     = "";
 		this.callback = callback;
+		this.isRunning = false;
 
 		var computedStyle = window.getComputedStyle(element, null);
 
@@ -68,16 +69,18 @@ class Animation {
 	}
 
 	go () {
-		if (this.alreadyWent)
-			this.goBackwards();
-		else
-			this.goForwards();
+		if(!this.isRunning)
+			if (this.alreadyWent)
+				this.goBackwards();
+			else
+				this.goForwards();
 
 	}
 
 	goForwards () {
 		if (this.passedTime < this.totalTime) {// a.k.a Epsilon
 			this.alreadyWent = true;
+			this.isRunning = true;
 			setTimeout(() => {
 				this.passedTime += 10;
 				this.currentValue += this.operationsPerMs * 10;
@@ -86,7 +89,8 @@ class Animation {
 				this.goForwards();
 			}, 10);
 		} else {
-			if(this.callback !== undefined && typeof this.callback === "function")
+			this.isRunning = false;
+			if (this.callback !== undefined && typeof this.callback === "function")
 				this.callback();
 		}
 	}
