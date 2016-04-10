@@ -28,21 +28,24 @@ class Drawer {
 
 		this.mouseScrolling = false;
 
-		this.drawerTitle.showHideAnimation = new Animation(this.holder, "height", 20, 200);
+		this.drawerTitle.showHideAnimation = new Animation(this.holder, "height", 20, 200, () => this.drawerTitle.classList.toggle("drawer-closed"));
 
 		this.drawerTitle.addEventListener("mousedown", (e) => {
-			this.drawerTitle.classList.toggle("drawer-closed");
-			this.drawerTitle.showHideAnimation.go();
+			if(e.button == 0)
+				this.drawerTitle.showHideAnimation.go();
 		});
 
 
 		this.drawerElementsHolder.addEventListener("wheel", (e) => {
-			this.scrollByPx(e.deltaY * 10);
-			e.preventDefault();
+			if(!this.mouseScrolling){
+				this.scrollByPx(e.deltaY * 10);
+				e.preventDefault();
+			}
 		});
 
 		this.scrollbarMeat.addEventListener("mousedown", (e) => {
-			this.mouseScrolling = true;
+			if(e.button == 0)
+				this.mouseScrolling = true;
 		});
 
 		document.addEventListener("mouseup", (e) => {
@@ -51,7 +54,9 @@ class Drawer {
 
 		document.addEventListener("mousemove", (e) => {
 			if (this.mouseScrolling) {
-				this.scrollToPct((e.pageY - this.scrollbar.offsetTop) / (this.scrollInfo.scrollbarArea));
+				this.scrollToPct((e.pageY - this.scrollbar.getBoundingClientRect().top - 10) / (this.scrollInfo.scrollbarArea));
+
+				e.preventDefault();
 			}
 		});
 
@@ -62,7 +67,7 @@ class Drawer {
 		this.holder.appendChild(this.drawerElementsHolder);
 		this.holder.appendChild(this.scrollbar);
 
-		this.list = [];
+		this.list = new Set();
 
 		this.elementClasses = elementClasses;
 		this.elementClasses.push("drawer-element");
@@ -99,7 +104,7 @@ class Drawer {
 	}
 
 	addElement (text) {
-		this.list.push(this.makeElement(text));
+		this.list.add(this.makeElement(text));
 
 		this.remakeHtml();
 	}
@@ -113,12 +118,16 @@ class Drawer {
 	}
 
 
+	empty(){
+		this.list = new Set();
+	}
+
 	remakeHtml () {
 		this.drawerElements.innerHTML = "";
 
-		for (var i  in this.list) {
-			this.drawerElements.appendChild(this.list[i]);
-		}
+		this.list.forEach(element => {
+			this.drawerElements.appendChild(element);
+		});
 
 		var holderH                         = getComputedStyle(this.drawerElementsHolder, null).height;
 		var elementsH                       = getComputedStyle(this.drawerElements, null).height;
@@ -129,13 +138,8 @@ class Drawer {
 	}
 
 	makeElement (text) {
-		var elem = document.createElement("div");
-
-		for (var i in this.elementClasses)
-			elem.classList.add(this.elementClasses[i]);
-
+		var elem = $createDiv({"class" : this.elementClasses.join(' ')});
 		elem.innerHTML = text;
-
 		return elem;
 	}
 }
