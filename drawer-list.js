@@ -1,6 +1,7 @@
 /**
  * Created by Braynstorm on 7.4.2016 г..
  */
+'use strict';
 
 class Drawer {
 	constructor (holder, elementClasses, title) {
