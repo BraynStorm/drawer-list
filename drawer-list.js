@@ -29,22 +29,22 @@ class Drawer {
 
 		this.mouseScrolling = false;
 
-		this.drawerTitle.showHideAnimation = new Animation(this.holder, "height", 20, 200, () => this.drawerTitle.classList.toggle("drawer-closed"));
+		this.showHideAnimation = new Animation(this.holder, "height", 20, 200, () => this.drawerTitle.classList.toggle("drawer-closed"));
 
-		this.drawerTitle.addEventListener("mousedown", (e) => {
+		this.drawerTitle.onMouseDown((e) => {
 			if(e.button == 0)
-				this.drawerTitle.showHideAnimation.go();
+				this.showHideAnimation.go();
 		});
 
 
-		this.drawerElementsHolder.addEventListener("wheel", (e) => {
+		this.drawerElementsHolder.onMouseWheel((e) => {
 			if(!this.mouseScrolling){
 				this.scrollByPx(e.deltaY * 10);
 				e.preventDefault();
 			}
 		});
 
-		this.scrollbarMeat.addEventListener("mousedown", (e) => {
+		this.scrollbarMeat.onMouseDown((e) => {
 			if(e.button == 0)
 				this.mouseScrolling = true;
 		});
