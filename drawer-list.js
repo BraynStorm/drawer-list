@@ -4,7 +4,7 @@
 'use strict';
 
 class Drawer {
-	constructor (holder, elementClasses, title) {
+	constructor (holder, elementClasses, title, contextMenu) {
 		this.scrollInfo = {
 			currentPx        : 0,
 			currentPercentage: 0,
@@ -15,6 +15,10 @@ class Drawer {
 			scrollbarArea      : 0
 
 		};
+
+		this.state = {isShown: true, isOpen: true}
+
+		this.contextMenu = contextMenu;
 
 		this.holder           = holder;
 		this.holder.innerHTML = "";
@@ -32,20 +36,20 @@ class Drawer {
 		this.showHideAnimation = new Animation(this.holder, "height", 20, 200, () => this.drawerTitle.classList.toggle("drawer-closed"));
 
 		this.drawerTitle.onMouseDown((e) => {
-			if(e.button == 0)
+			if (e.button == 0)
 				this.showHideAnimation.go();
 		});
 
 
 		this.drawerElementsHolder.onMouseWheel((e) => {
-			if(!this.mouseScrolling){
+			if (!this.mouseScrolling) {
 				this.scrollByPx(e.deltaY * 10);
 				e.preventDefault();
 			}
 		});
 
 		this.scrollbarMeat.onMouseDown((e) => {
-			if(e.button == 0)
+			if (e.button == 0)
 				this.mouseScrolling = true;
 		});
 
@@ -76,23 +80,46 @@ class Drawer {
 		this.remakeHtml();
 	}
 
+
 	scrollToPct (percentage) {
 		this.scrollInfo.currentPercentage = Utils.clamp(percentage, 0, 1);
 		this.scrollInfo.currentPx         = this.scrollInfo.currentPercentage * (this.scrollInfo.totalPx + 6);
 
 
-		var newMeatTop = this.scrollInfo.currentPercentage * this.scrollInfo.scrollbarArea;
-		this.scrollbarMeat.style.top        = newMeatTop + 'px';
+		var newMeatTop               = this.scrollInfo.currentPercentage * this.scrollInfo.scrollbarArea;
+		this.scrollbarMeat.style.top = newMeatTop + 'px';
 
 		var newBorderRadius = this.scrollInfo.scrollbarArea - newMeatTop;
 
-		if(newBorderRadius <= 5)
+		if (newBorderRadius <= 5)
 			this.scrollbarMeat.style.borderBottomRightRadius = 5 - newBorderRadius + 'px';
 		else
 			this.scrollbarMeat.style.borderBottomRightRadius = '0px';
 
 
 		this.drawerElementsHolder.scrollTop = this.scrollInfo.currentPx;
+	}
+
+	isOpen(){
+		return this.state.isOpen;
+	}
+
+	isShown(){
+		return this.state.isShown;
+	}
+
+	setTitle (title) {
+		this.drawerTitle.innerHTML = title;
+	}
+
+	hide () {
+		this.state.isShown = false;
+		this.holder.css("display", "none");
+	}
+
+	show () {
+		this.state.isShown = true;
+		this.holder.css("display", "block");
 	}
 
 	scrollByPx (amount) {
@@ -118,13 +145,43 @@ class Drawer {
 		this.remakeHtml();
 	}
 
+	removeElement (element) {
+		const it = this.list.keys();
+		var next;
 
-	empty(){
+		while (true) {
+			next = it.next();
+
+			if (next.done === true)
+				break;
+
+			if (next.value.innerHTML === element)
+				this.list.delete(next.value);
+		}
+
+		this.remakeHtml();
+	}
+
+	open () {
+		if (!this.showHideAnimation.alreadyWent) {
+			this.showHideAnimation.goBackwards();
+			this.state.isOpen = true;
+		}
+	}
+
+	close () {
+		if (!this.showHideAnimation.alreadyWent) {
+			this.showHideAnimation.goForwards();
+			this.state.isOpen = false;
+		}
+	}
+
+	empty () {
 		this.list = new Set();
 	}
 
 	remakeHtml () {
-		this.drawerElements.innerHTML = "";
+		this.drawerElements.innerHTML = ""; // "Tabula rasa"
 
 		this.list.forEach(element => {
 			this.drawerElements.appendChild(element);
@@ -139,8 +196,16 @@ class Drawer {
 	}
 
 	makeElement (text) {
-		var elem = $createDiv({"class" : this.elementClasses.join(' ')});
+		var elem = $createDiv({"class": this.elementClasses.join(' ')});
+
 		elem.innerHTML = text;
+		//debug(_this);
+		elem.onContextMenu((e) => {
+			this.contextMenu.open(e, elem.innerHTML);
+			e.preventDefault();
+			return false;
+		});
+
 		return elem;
 	}
 }
